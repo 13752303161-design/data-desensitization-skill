@@ -174,6 +174,14 @@ data-desensitization-skill-repo/
 - 为什么这个 skill 不是简单打码
 - 脱敏前后示例，支持轻度 / 重度切换
 
+其中最直观的是：
+
+- `examples/data-desensitization-examples.html`
+  用交互式方式展示“脱敏前 vs 脱敏后”，并支持切换 `轻度脱敏` 和 `重度脱敏`
+
+- `examples/data-desensitization-skill-design.html`
+  解释这个 skill 的设计思路、数字为什么默认视为敏感，以及轻重度脱敏的边界
+
 ---
 
 ## 典型使用场景
@@ -201,6 +209,28 @@ data-desensitization-skill-repo/
 ```text
 把这个项目复盘改成案例分享版，按重度脱敏，只保留方法论和启发，不保留真实经营值。
 ```
+
+---
+
+## 交互式示例
+
+如果你想快速理解这个 skill 怎么工作，建议先看这个文件：
+
+`examples/data-desensitization-examples.html`
+
+它展示了几类典型内容的脱敏前后对比：
+
+- 用户明细表
+- 活动结果页
+- 门店差异页
+- 字段级规则对照
+
+并且支持切换：
+
+- `轻度脱敏`
+- `重度脱敏`
+
+这比只看规则文档更直观，特别适合第一次接触这个 skill 的人。
 
 ---
 
