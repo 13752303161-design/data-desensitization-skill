@@ -292,10 +292,10 @@
 <body>
   <div class="wrap">
     <section class="hero">
-      <div class="eyebrow">内部 Skill 设计说明 · 面向对外客户复盘材料</div>
+      <div class="eyebrow">内部 Skill 设计说明 · 面向对外分享材料</div>
       <h1>数据脱敏 Skill 应该怎么设计</h1>
       <p class="lead">
-        这不是一个“把手机号打星号”的小工具，而是一套面向 <strong>对外发客户复盘材料</strong> 的安全改写规则。
+        这不是一个“把手机号打星号”的小工具，而是一套面向 <strong>对外分享材料</strong> 的安全改写规则。
         你的关键要求已经很清楚：<strong>用户字段要脱敏</strong>，并且 <strong>所有数字都不能原样保留，必须经过干扰或替换</strong>。
         所以这个 skill 的本质，不是“字段隐藏”，而是 <strong>隐私脱敏 + 数字扰动 + 对外展示重写</strong>。
       </p>
@@ -305,7 +305,7 @@
           <h2>为什么你需要单独做这个 skill</h2>
           <div class="stack">
             <div class="item"><strong>原因 1：你的工作天然高风险</strong><br>你经常要把分析结果转成 PPT、Word、Excel、案例沉淀页。这些交付物一旦包含真实手机号、会员 ID、门店经营数字、活动真实产出，就存在被二次传播的风险。</div>
-            <div class="item"><strong>原因 2：普通“打码”不够</strong><br>很多人以为脱敏只是把手机号改成 <code>138****1234</code>。但你的场景里，人数、GMV、转化率、门店业绩、券核销量这些数字，同样会暴露客户真实经营情况。</div>
+            <div class="item"><strong>原因 2：普通“打码”不够</strong><br>很多人以为脱敏只是把手机号改成 <code>138****1234</code>。但你的场景里，人数、GMV、转化率、门店业绩、券核销量这些数字，同样会暴露真实经营情况。</div>
             <div class="item"><strong>原因 3：你需要稳定规则，不是临场判断</strong><br>每次都靠你自己临场想“这个数字要不要改”“这个字段能不能露”，既慢又不稳定。skill 的意义，就是把这件事标准化。</div>
           </div>
         </div>
@@ -313,7 +313,7 @@
         <div class="panel">
           <h2>这次先锁定的设计边界</h2>
           <div class="metric-grid">
-            <div class="metric"><div class="num">1</div><div class="txt">主场景<br>对外发客户复盘材料</div></div>
+            <div class="metric"><div class="num">1</div><div class="txt">主场景<br>对外分享材料</div></div>
             <div class="metric"><div class="num">2</div><div class="txt">脱敏强度<br>轻度 / 重度 两档</div></div>
             <div class="metric"><div class="num">3</div><div class="txt">重点对象<br>用户字段 + 所有数字</div></div>
             <div class="metric"><div class="num">4</div><div class="txt">默认目标<br>无法直接还原真实数据</div></div>
@@ -335,7 +335,7 @@
         </div>
         <div class="block-list">
           <div class="block"><strong>用户隐私字段</strong><span>手机号、姓名、会员 ID、地址、身份证号、邮箱、设备 ID、订单号等。对外材料里，这类字段默认不能直接出现。</span></div>
-          <div class="block"><strong>经营敏感字段</strong><span>门店编码、内部渠道编码、商品内部代号、客户内部策略标签、运营脚本命名、私域标签体系等。这次虽然你主要强调用户字段，但经营敏感字段后续也建议纳入规则。</span></div>
+          <div class="block"><strong>经营敏感字段</strong><span>门店编码、内部渠道编码、商品内部代号、内部策略标签、运营脚本命名、私域标签体系等。这次虽然你主要强调用户字段，但经营敏感字段后续也建议纳入规则。</span></div>
           <div class="block"><strong>数字敏感字段</strong><span>人数、单量、GMV、核销数、参与数、客单价、转化率、复购率、门店业绩、活动 ROI 等。这里的重点是：这些数字不允许原样保留。</span></div>
         </div>
       </div>
@@ -373,18 +373,18 @@
         <div class="compare light">
           <h3>轻度脱敏</h3>
           <div class="list">
-            <div class="item"><strong>定位</strong><br>适合发给当前客户、合作方、外部沟通材料，但不希望真实数据被二次扩散。</div>
+            <div class="item"><strong>定位</strong><br>适合发给当前接收方、合作方、外部沟通材料，但不希望真实数据被二次扩散。</div>
             <div class="item"><strong>目标</strong><br>保留业务结构、相对关系和可读性，让材料还能正常讲述。</div>
             <div class="item"><strong>用户字段</strong><br>用掩码或稳定匿名，比如 <code>138****1234</code>、<code>用户A</code>、<code>M_00128</code>。</div>
             <div class="item"><strong>数字字段</strong><br>全部做扰动，不能保留真实绝对值。一般保留趋势、排序、增减关系。</div>
-            <div class="item"><strong>适合场景</strong><br>客户汇报、项目复盘、合作沟通材料。</div>
+            <div class="item"><strong>适合场景</strong><br>项目汇报、结果复盘、合作沟通材料。</div>
           </div>
         </div>
 
         <div class="compare heavy">
           <h3>重度脱敏</h3>
           <div class="list">
-            <div class="item"><strong>定位</strong><br>适合案例外发、跨客户分享、培训、方法论宣传。</div>
+            <div class="item"><strong>定位</strong><br>适合案例外发、跨项目分享、培训、方法论宣传。</div>
             <div class="item"><strong>目标</strong><br>尽量只保留结构和启发，不保留任何可回推真实业务值的数字与明细。</div>
             <div class="item"><strong>用户字段</strong><br>改成完全匿名的角色化描述，如 <code>用户分组1</code>、<code>高活跃用户组</code>。</div>
             <div class="item"><strong>数字字段</strong><br>改成区间、等级、指数、相对变化或趋势语言，例如“接近20%”“1万+”“中高水平”。</div>
@@ -455,7 +455,7 @@
         <div class="flow-list">
           <div class="flow-item"><strong>第 1 步：判断交付物类型</strong><br>PPT、Word、Excel、案例页，不同交付物默认用不同强度。</div>
           <div class="flow-item"><strong>第 2 步：识别敏感字段</strong><br>先扫用户字段、经营字段、数字字段，再决定哪些必须处理。</div>
-          <div class="flow-item"><strong>第 3 步：选择脱敏等级</strong><br>轻度用于客户当前沟通，重度用于案例外发或培训。</div>
+          <div class="flow-item"><strong>第 3 步：选择脱敏等级</strong><br>轻度用于当前沟通，重度用于案例外发或培训。</div>
           <div class="flow-item"><strong>第 4 步：统一改写</strong><br>文本、图表、表格、页脚、结论口径一起改，避免局部脱敏。</div>
           <div class="flow-item"><strong>第 5 步：输出脱敏说明</strong><br>告诉你哪些字段被处理了、用了哪种规则，避免黑箱。</div>
         </div>
@@ -489,7 +489,7 @@
           <div class="item"><strong>你最常见的敏感字段</strong><br>常见导表里哪些字段经常出现、哪些字段最容易漏脱敏。</div>
           <div class="item"><strong>数字扰动默认策略</strong><br>比如人数、金额、转化率分别怎么改，是否用统一比例、区间、指数。</div>
           <div class="item"><strong>对外汇报的默认规则</strong><br>哪些页能保留趋势、哪些页只能保留结构、哪些明细表默认不出。</div>
-          <div class="item"><strong>典型案例模板</strong><br>比如“鱼你在一起对外复盘版”“零售品牌活动案例分享版”。</div>
+          <div class="item"><strong>典型案例模板</strong><br>比如“连锁品牌对外复盘版”“零售活动案例分享版”。</div>
         </div>
       </div>
     </section>
@@ -507,7 +507,7 @@
         <div class="card">
           <h3>第二步</h3>
           <div class="block-list">
-            <div class="block"><strong>补真实案例</strong><span>从你最常见的对外客户复盘材料出发，补真实字段、真实口径、真实坑点。</span></div>
+            <div class="block"><strong>补真实案例</strong><span>从你最常见的对外分享材料出发，补真实字段、真实口径、真实坑点。</span></div>
           </div>
         </div>
         <div class="card">

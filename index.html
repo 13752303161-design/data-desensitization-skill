@@ -1,0 +1,343 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Data Desensitization Skill</title>
+  <meta name="description" content="A reusable data desensitization skill for Excel, CSV, PPT, Word, HTML, and text-based analysis outputs.">
+  <style>
+    :root {
+      --bg: #f6f3ed;
+      --paper: rgba(255, 252, 246, 0.92);
+      --ink: #1f2937;
+      --muted: #5b6472;
+      --line: rgba(31, 41, 55, 0.12);
+      --accent: #0f766e;
+      --accent-2: #d97706;
+      --shadow: 0 22px 50px rgba(31, 41, 55, 0.12);
+      --radius: 24px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "SF Pro Display", "PingFang SC", "Helvetica Neue", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(217, 119, 6, 0.18), transparent 28%),
+        radial-gradient(circle at top right, rgba(15, 118, 110, 0.18), transparent 24%),
+        linear-gradient(180deg, #f7f2e8 0%, #f3f6f8 100%);
+      min-height: 100vh;
+    }
+
+    .wrap {
+      width: min(1120px, calc(100% - 32px));
+      margin: 28px auto 40px;
+    }
+
+    .hero, .card, .panel {
+      background: var(--paper);
+      border: 1px solid rgba(255, 255, 255, 0.7);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
+    }
+
+    .hero {
+      padding: 36px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: auto -40px -60px auto;
+      width: 220px;
+      height: 220px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(15, 118, 110, 0.18), transparent 65%);
+      pointer-events: none;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(15, 118, 110, 0.10);
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 16px 0 12px;
+      font-size: clamp(34px, 5vw, 62px);
+      line-height: 1.02;
+      letter-spacing: -0.04em;
+    }
+
+    .lead {
+      max-width: 760px;
+      font-size: 18px;
+      line-height: 1.75;
+      color: var(--muted);
+      margin: 0;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 48px;
+      padding: 0 18px;
+      border-radius: 999px;
+      border: 1px solid transparent;
+      font-weight: 700;
+      text-decoration: none;
+      transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+    }
+
+    .btn:hover { transform: translateY(-1px); }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), #0b5f61);
+      color: white;
+      box-shadow: 0 14px 28px rgba(15, 118, 110, 0.24);
+    }
+
+    .btn-secondary {
+      background: white;
+      color: var(--ink);
+      border-color: var(--line);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      gap: 18px;
+      margin-top: 22px;
+    }
+
+    .card, .panel { padding: 24px; }
+
+    .span-7 { grid-column: span 7; }
+    .span-5 { grid-column: span 5; }
+    .span-6 { grid-column: span 6; }
+
+    h2 {
+      margin: 0 0 12px;
+      font-size: 24px;
+      letter-spacing: -0.02em;
+    }
+
+    h3 {
+      margin: 0 0 8px;
+      font-size: 18px;
+    }
+
+    p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.75;
+    }
+
+    ul {
+      margin: 14px 0 0;
+      padding-left: 18px;
+      color: var(--muted);
+      line-height: 1.8;
+    }
+
+    .kpis {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .kpi {
+      padding: 16px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.72);
+      border: 1px solid rgba(31, 41, 55, 0.08);
+    }
+
+    .kpi strong {
+      display: block;
+      font-size: 28px;
+      margin-bottom: 4px;
+      letter-spacing: -0.03em;
+    }
+
+    .example-links {
+      display: grid;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .example-link {
+      display: block;
+      padding: 16px 18px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.76);
+      border: 1px solid rgba(31, 41, 55, 0.08);
+      color: var(--ink);
+      text-decoration: none;
+      transition: transform .18s ease, box-shadow .18s ease;
+    }
+
+    .example-link:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 14px 24px rgba(31, 41, 55, 0.10);
+    }
+
+    .example-link span {
+      display: block;
+      color: var(--muted);
+      margin-top: 6px;
+      line-height: 1.7;
+    }
+
+    .note {
+      margin-top: 14px;
+      padding: 14px 16px;
+      border-radius: 16px;
+      background: rgba(217, 119, 6, 0.08);
+      border: 1px solid rgba(217, 119, 6, 0.16);
+      color: #7c4d12;
+      line-height: 1.7;
+    }
+
+    .footer {
+      margin-top: 22px;
+      padding: 18px 22px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    code {
+      font-family: "SFMono-Regular", "Menlo", monospace;
+      background: rgba(15, 118, 110, 0.08);
+      padding: 2px 6px;
+      border-radius: 8px;
+    }
+
+    @media (max-width: 900px) {
+      .span-7, .span-5, .span-6 { grid-column: span 12; }
+      .hero { padding: 24px; }
+      .kpis { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <div class="eyebrow">GitHub Pages · Interactive Skill Hub</div>
+      <h1>Data Desensitization Skill</h1>
+      <p class="lead">
+        一个面向文件型与内容型场景的通用数据脱敏 skill。它不只是“打码”，而是把
+        <strong>敏感字段识别、全部数字扰动、对外表达重写、轻重度规则</strong>
+        组合成一套可复用的方法。
+      </p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="./examples/data-desensitization-examples.html">打开交互式脱敏前后示例</a>
+        <a class="btn btn-secondary" href="./examples/data-desensitization-skill-design.html">查看设计说明</a>
+        <a class="btn btn-secondary" href="./README.md">阅读 README</a>
+      </div>
+    </section>
+
+    <section class="grid">
+      <article class="card span-7">
+        <h2>这个 skill 解决什么问题</h2>
+        <p>
+          真实世界的数据脱敏，危险点往往不只是手机号和姓名，还包括品牌标识、门店标识、
+          用户 ID、订单号、GMV、ROI、转化率、图表标签、隐藏 sheet、页脚和 embedded 数据。
+          这个 skill 的目标，是让你在保留结构和分析可读性的前提下，避免真实数据被直接看到或被反推。
+        </p>
+        <ul>
+          <li>文件型优先：Excel、CSV、PPT、Word、HTML、Markdown</li>
+          <li>内容型兼容：SQL 查询结果、表格片段、复盘文字、图表说明</li>
+          <li>默认把所有数字视为敏感信息，不允许原样保留</li>
+          <li>支持轻度脱敏和重度脱敏两档规则</li>
+        </ul>
+        <div class="kpis">
+          <div class="kpi">
+            <strong>2</strong>
+            脱敏强度：轻度 / 重度
+          </div>
+          <div class="kpi">
+            <strong>4</strong>
+            核心对象：身份字段 / 经营字段 / 数字字段 / 文本叙事
+          </div>
+          <div class="kpi">
+            <strong>1</strong>
+            底线：真实数字不能原样保留
+          </div>
+          <div class="kpi">
+            <strong>∞</strong>
+            可复用场景：报告、案例、附件、分享页、文本片段
+          </div>
+        </div>
+      </article>
+
+      <aside class="panel span-5">
+        <h2>从哪里开始看</h2>
+        <div class="example-links">
+          <a class="example-link" href="./examples/data-desensitization-examples.html">
+            交互式示例
+            <span>直接看“脱敏前 vs 脱敏后”的效果，支持切换轻度脱敏和重度脱敏。</span>
+          </a>
+          <a class="example-link" href="./examples/data-desensitization-skill-design.html">
+            设计说明
+            <span>理解为什么这个 skill 不只是打码，而是包含数字扰动、规则分层和输出重写。</span>
+          </a>
+          <a class="example-link" href="./data-desensitization/SKILL.md">
+            SKILL.md
+            <span>查看触发条件、默认判断规则、输出方式和对话示例。</span>
+          </a>
+        </div>
+        <div class="note">
+          如果你是第一次看这个项目，建议顺序：<code>交互式示例</code> → <code>设计说明</code> → <code>SKILL.md</code>。
+        </div>
+      </aside>
+
+      <article class="card span-6">
+        <h2>适合谁</h2>
+        <ul>
+          <li>数据分析师与咨询分析团队</li>
+          <li>CRM / CDP / MA 顾问与策略团队</li>
+          <li>需要把真实业务材料转成可安全分享版本的人</li>
+          <li>希望把脱敏方法沉淀成可复用 AI skill 的团队</li>
+        </ul>
+      </article>
+
+      <article class="card span-6">
+        <h2>典型输入</h2>
+        <ul>
+          <li><code>帮我对这个 Excel 做重度脱敏，用户字段全匿名，所有数字不能保留原值。</code></li>
+          <li><code>把这份 PPT 做轻度脱敏，保留趋势和结构，但真实数字全部扰动。</code></li>
+          <li><code>把这段 SQL 查询结果脱敏，去掉可识别字段，并把数值改成不可反推的表达。</code></li>
+        </ul>
+      </article>
+    </section>
+
+    <div class="footer">
+      Built for reusable data desensitization workflows on GitHub Pages.
+    </div>
+  </div>
+</body>
+</html>
