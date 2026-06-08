@@ -1,0 +1,523 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>数据脱敏 Skill 设计说明</title>
+  <style>
+    :root {
+      --bg: #f6f0e7;
+      --paper: rgba(255, 252, 247, 0.94);
+      --paper-2: rgba(245, 251, 249, 0.92);
+      --ink: #1f2628;
+      --muted: #617071;
+      --line: rgba(31, 38, 40, 0.10);
+      --teal: #0f766e;
+      --orange: #bb5d31;
+      --navy: #1d4f7a;
+      --warn: #8b2f2f;
+      --soft-warn: #fff3f0;
+      --tag: #edf7f4;
+      --shadow: 0 26px 60px rgba(78, 61, 29, 0.10);
+      --radius-xl: 28px;
+      --radius-lg: 18px;
+      --radius-sm: 12px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "PingFang SC", "Hiragino Sans GB", "Noto Sans SC", "Microsoft YaHei", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 0% 0%, rgba(15, 118, 110, 0.14), transparent 24%),
+        radial-gradient(circle at 100% 0%, rgba(187, 93, 49, 0.18), transparent 28%),
+        linear-gradient(180deg, #f8f3eb 0%, #f3ede3 100%);
+      min-height: 100vh;
+    }
+
+    .wrap {
+      width: min(1280px, calc(100% - 28px));
+      margin: 24px auto 42px;
+    }
+
+    .hero, .panel, .card {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow);
+    }
+
+    .hero {
+      padding: 30px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      right: -40px;
+      top: -30px;
+      width: 260px;
+      height: 260px;
+      background: radial-gradient(circle, rgba(15, 118, 110, 0.16), transparent 62%);
+      pointer-events: none;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(15, 118, 110, 0.08);
+      color: var(--teal);
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+    }
+
+    h1 {
+      margin: 16px 0 12px;
+      font-size: clamp(30px, 5vw, 50px);
+      line-height: 1.08;
+    }
+
+    .lead {
+      margin: 0;
+      max-width: 920px;
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.85;
+    }
+
+    .grid-2, .grid-3, .rule-grid, .compare-grid {
+      display: grid;
+      gap: 18px;
+      margin-top: 22px;
+    }
+
+    .grid-2 { grid-template-columns: 1.25fr 1fr; }
+    .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .rule-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .compare-grid { grid-template-columns: 1fr 1fr; }
+
+    .panel {
+      padding: 20px;
+      background: var(--paper-2);
+    }
+
+    .panel h2, .section-title {
+      margin: 0 0 14px;
+      font-size: 21px;
+    }
+
+    .panel p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.8;
+    }
+
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .metric {
+      padding: 16px;
+      border-radius: 16px;
+      background: linear-gradient(180deg, #fffefb, #f4faf7);
+      border: 1px solid rgba(15, 118, 110, 0.12);
+    }
+
+    .metric .num {
+      font-size: 28px;
+      color: var(--teal);
+      font-weight: 800;
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+
+    .metric .txt {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.55;
+    }
+
+    .stack, .list, .flow-list {
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .item, .flow-item {
+      padding: 14px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.76);
+      border: 1px solid rgba(31, 38, 40, 0.08);
+      line-height: 1.8;
+    }
+
+    .warn-box {
+      margin-top: 16px;
+      padding: 16px;
+      border-radius: 16px;
+      background: var(--soft-warn);
+      border: 1px solid rgba(139, 47, 47, 0.12);
+      color: var(--warn);
+      line-height: 1.8;
+    }
+
+    .tag-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .tag {
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--tag);
+      color: var(--teal);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .card {
+      padding: 22px;
+    }
+
+    .card h3 {
+      margin: 0 0 12px;
+      font-size: 24px;
+    }
+
+    .block-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .block {
+      padding: 14px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.78);
+      border: 1px solid rgba(31, 38, 40, 0.08);
+    }
+
+    .block strong {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 14px;
+    }
+
+    .block span {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.78;
+    }
+
+    .compare {
+      padding: 18px;
+      border-radius: 20px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.78);
+    }
+
+    .compare h3 {
+      margin: 0 0 12px;
+      font-size: 22px;
+    }
+
+    .compare.light { border-top: 5px solid var(--teal); }
+    .compare.heavy { border-top: 5px solid var(--orange); }
+
+    .table-wrap {
+      margin-top: 18px;
+      overflow: auto;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.82);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 820px;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 14px 16px;
+      border-bottom: 1px solid rgba(31, 38, 40, 0.08);
+      vertical-align: top;
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    th {
+      background: rgba(15, 118, 110, 0.06);
+      font-size: 13px;
+      letter-spacing: 0.03em;
+    }
+
+    code {
+      background: rgba(15, 118, 110, 0.08);
+      padding: 2px 6px;
+      border-radius: 7px;
+      font-family: "SFMono-Regular", "Menlo", monospace;
+      font-size: 0.95em;
+    }
+
+    @media (max-width: 1024px) {
+      .grid-2, .grid-3, .rule-grid, .compare-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .metric-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 640px) {
+      .wrap { width: min(100% - 18px, 1200px); margin-top: 12px; }
+      .hero, .panel, .card { padding: 18px; }
+      .metric-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <div class="eyebrow">内部 Skill 设计说明 · 面向对外客户复盘材料</div>
+      <h1>数据脱敏 Skill 应该怎么设计</h1>
+      <p class="lead">
+        这不是一个“把手机号打星号”的小工具，而是一套面向 <strong>对外发客户复盘材料</strong> 的安全改写规则。
+        你的关键要求已经很清楚：<strong>用户字段要脱敏</strong>，并且 <strong>所有数字都不能原样保留，必须经过干扰或替换</strong>。
+        所以这个 skill 的本质，不是“字段隐藏”，而是 <strong>隐私脱敏 + 数字扰动 + 对外展示重写</strong>。
+      </p>
+
+      <div class="grid-2">
+        <div class="panel">
+          <h2>为什么你需要单独做这个 skill</h2>
+          <div class="stack">
+            <div class="item"><strong>原因 1：你的工作天然高风险</strong><br>你经常要把分析结果转成 PPT、Word、Excel、案例沉淀页。这些交付物一旦包含真实手机号、会员 ID、门店经营数字、活动真实产出，就存在被二次传播的风险。</div>
+            <div class="item"><strong>原因 2：普通“打码”不够</strong><br>很多人以为脱敏只是把手机号改成 <code>138****1234</code>。但你的场景里，人数、GMV、转化率、门店业绩、券核销量这些数字，同样会暴露客户真实经营情况。</div>
+            <div class="item"><strong>原因 3：你需要稳定规则，不是临场判断</strong><br>每次都靠你自己临场想“这个数字要不要改”“这个字段能不能露”，既慢又不稳定。skill 的意义，就是把这件事标准化。</div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h2>这次先锁定的设计边界</h2>
+          <div class="metric-grid">
+            <div class="metric"><div class="num">1</div><div class="txt">主场景<br>对外发客户复盘材料</div></div>
+            <div class="metric"><div class="num">2</div><div class="txt">脱敏强度<br>轻度 / 重度 两档</div></div>
+            <div class="metric"><div class="num">3</div><div class="txt">重点对象<br>用户字段 + 所有数字</div></div>
+            <div class="metric"><div class="num">4</div><div class="txt">默认目标<br>无法直接还原真实数据</div></div>
+          </div>
+          <div class="warn-box">
+            <strong>最重要的设计原则</strong><br>
+            对外材料中的真实数字默认不能保留。哪怕是转化率、客单价、人数、GMV，也必须经过统一扰动、区间化、指数化或描述性替换，避免被反推出真实经营数据。
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="grid-3">
+      <div class="card">
+        <h3>第一层：识别什么要脱敏</h3>
+        <div class="tag-row">
+          <span class="tag">字段识别层</span>
+          <span class="tag">敏感对象分类</span>
+        </div>
+        <div class="block-list">
+          <div class="block"><strong>用户隐私字段</strong><span>手机号、姓名、会员 ID、地址、身份证号、邮箱、设备 ID、订单号等。对外材料里，这类字段默认不能直接出现。</span></div>
+          <div class="block"><strong>经营敏感字段</strong><span>门店编码、内部渠道编码、商品内部代号、客户内部策略标签、运营脚本命名、私域标签体系等。这次虽然你主要强调用户字段，但经营敏感字段后续也建议纳入规则。</span></div>
+          <div class="block"><strong>数字敏感字段</strong><span>人数、单量、GMV、核销数、参与数、客单价、转化率、复购率、门店业绩、活动 ROI 等。这里的重点是：这些数字不允许原样保留。</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>第二层：决定怎么脱敏</h3>
+        <div class="tag-row">
+          <span class="tag">脱敏策略层</span>
+          <span class="tag">同字段不同强度</span>
+        </div>
+        <div class="block-list">
+          <div class="block"><strong>文字型字段</strong><span>可以用掩码、稳定匿名、泛化替代。比如手机号打星，姓名改成“用户 A”，门店名改成“华东门店组 1”。</span></div>
+          <div class="block"><strong>数字型字段</strong><span>轻度脱敏时做扰动缩放；重度脱敏时改成区间、指数、等级、趋势描述。关键不是“看上去像变了”，而是不能被轻易反推。</span></div>
+          <div class="block"><strong>图表与结论</strong><span>图表里的柱高、折线、标签、注释、结论描述要保持一致。不能表格里改了数字，PPT 页脚还留着真实值。</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>第三层：按输出场景套默认规则</h3>
+        <div class="tag-row">
+          <span class="tag">输出场景层</span>
+          <span class="tag">交付物默认策略</span>
+        </div>
+        <div class="block-list">
+          <div class="block"><strong>PPT / Word 对外汇报</strong><span>默认轻度脱敏，但所有数字仍需扰动。目标是保留业务结构和可讲述性，同时去掉真实值。</span></div>
+          <div class="block"><strong>案例沉淀 / 培训分享</strong><span>默认重度脱敏。重点保留方法论和结构，不保留真实经营数字。</span></div>
+          <div class="block"><strong>Excel 附表 / 明细导出</strong><span>默认按重度处理，尤其是用户级明细。通常不建议对外发真实粒度明细，哪怕已经打码，也容易联动还原。</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel" style="margin-top: 22px;">
+      <div class="section-title">轻度脱敏 vs 重度脱敏</div>
+      <div class="compare-grid">
+        <div class="compare light">
+          <h3>轻度脱敏</h3>
+          <div class="list">
+            <div class="item"><strong>定位</strong><br>适合发给当前客户、合作方、外部沟通材料，但不希望真实数据被二次扩散。</div>
+            <div class="item"><strong>目标</strong><br>保留业务结构、相对关系和可读性，让材料还能正常讲述。</div>
+            <div class="item"><strong>用户字段</strong><br>用掩码或稳定匿名，比如 <code>138****1234</code>、<code>用户A</code>、<code>M_00128</code>。</div>
+            <div class="item"><strong>数字字段</strong><br>全部做扰动，不能保留真实绝对值。一般保留趋势、排序、增减关系。</div>
+            <div class="item"><strong>适合场景</strong><br>客户汇报、项目复盘、合作沟通材料。</div>
+          </div>
+        </div>
+
+        <div class="compare heavy">
+          <h3>重度脱敏</h3>
+          <div class="list">
+            <div class="item"><strong>定位</strong><br>适合案例外发、跨客户分享、培训、方法论宣传。</div>
+            <div class="item"><strong>目标</strong><br>尽量只保留结构和启发，不保留任何可回推真实业务值的数字与明细。</div>
+            <div class="item"><strong>用户字段</strong><br>改成完全匿名的角色化描述，如 <code>用户分组1</code>、<code>高活跃用户组</code>。</div>
+            <div class="item"><strong>数字字段</strong><br>改成区间、等级、指数、相对变化或趋势语言，例如“接近20%”“1万+”“中高水平”。</div>
+            <div class="item"><strong>适合场景</strong><br>培训分享、案例库、跨品牌内部复用材料。</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel" style="margin-top: 22px;">
+      <div class="section-title">数字怎么脱敏：不是遮掉，而是统一扰动</div>
+      <p>
+        你的要求已经明确：<strong>数字不能保留原值</strong>。所以这个 skill 需要内置“数字扰动规则”，并且保证同一份材料内逻辑一致。
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>数字类型</th>
+              <th>轻度脱敏</th>
+              <th>重度脱敏</th>
+              <th>设计原则</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>人数 / 单量 / 核销数</td>
+              <td>统一比例缩放或区间扰动，比如 <code>12,486 → 13,100</code></td>
+              <td><code>1万+</code>、<code>高位区间</code>、<code>低万级</code></td>
+              <td>保留数量级和相对关系，但去掉真实值</td>
+            </tr>
+            <tr>
+              <td>GMV / 销售额 / 消费金额</td>
+              <td>按固定扰动规则改写，如 <code>286,420 → 301,000</code></td>
+              <td><code>中高水平</code>、<code>30万级附近</code>、指数化值</td>
+              <td>不能通过多页交叉还原真实金额</td>
+            </tr>
+            <tr>
+              <td>转化率 / 复购率 / 打开率</td>
+              <td>全部微扰，如 <code>18.7% → 17.9%</code></td>
+              <td><code>接近20%</code>、<code>高于基线</code>、<code>中位偏上</code></td>
+              <td>既不能原值保留，也不能让分子分母反推出来</td>
+            </tr>
+            <tr>
+              <td>客单价 / 单店产出</td>
+              <td>扰动后保留档位感</td>
+              <td><code>70元档</code>、<code>中高客单</code>、<code>低客单型</code></td>
+              <td>对外更多强调结构，不强调精确值</td>
+            </tr>
+            <tr>
+              <td>环比 / 同比变化</td>
+              <td>可保留方向，但幅度建议扰动</td>
+              <td>改成“明显提升 / 小幅波动 / 明显回落”</td>
+              <td>避免通过变化率联动推回原值</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="warn-box">
+        <strong>数字处理的底线</strong><br>
+        同一份材料里，如果第一页改了 GMV，后面的图表、注释、页脚、案例引用都必须跟着改。否则哪怕每页单独看都“脱敏”了，跨页合起来仍然能还原真实数据。
+      </div>
+    </section>
+
+    <section class="rule-grid">
+      <div class="card">
+        <h3>这个 skill 未来的工作流</h3>
+        <div class="flow-list">
+          <div class="flow-item"><strong>第 1 步：判断交付物类型</strong><br>PPT、Word、Excel、案例页，不同交付物默认用不同强度。</div>
+          <div class="flow-item"><strong>第 2 步：识别敏感字段</strong><br>先扫用户字段、经营字段、数字字段，再决定哪些必须处理。</div>
+          <div class="flow-item"><strong>第 3 步：选择脱敏等级</strong><br>轻度用于客户当前沟通，重度用于案例外发或培训。</div>
+          <div class="flow-item"><strong>第 4 步：统一改写</strong><br>文本、图表、表格、页脚、结论口径一起改，避免局部脱敏。</div>
+          <div class="flow-item"><strong>第 5 步：输出脱敏说明</strong><br>告诉你哪些字段被处理了、用了哪种规则，避免黑箱。</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>为什么我建议先做“规则 + 模板型 skill”</h3>
+        <div class="block-list">
+          <div class="block"><strong>原因 1：你现在最需要标准，不是全自动</strong><span>先把判断规则和默认动作固定住，比上来就写复杂脚本更重要。</span></div>
+          <div class="block"><strong>原因 2：你的材料类型很多</strong><span>PPT、Word、Excel、案例页都不一样，先把策略讲清楚，后面再考虑脚本自动化。</span></div>
+          <div class="block"><strong>原因 3：规则型更容易沉淀经验</strong><span>你做过几轮对外复盘之后，就能把真实经验继续补进 skill 里，比如哪些字段最容易漏、哪些数字最敏感。</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="grid-2" style="margin-top: 22px;">
+      <div class="panel">
+        <h2>这个 skill 第一版应该长什么样</h2>
+        <div class="list">
+          <div class="item"><strong>skill 名称建议</strong><br><code>data-desensitization-for-client-reporting</code> 或更短一点的 <code>client-report-desensitization</code></div>
+          <div class="item"><strong>SKILL.md</strong><br>写清：适用场景、轻/重度脱敏、字段分类、数字扰动原则、不同交付物默认规则。</div>
+          <div class="item"><strong>references/field-catalog.md</strong><br>放常见敏感字段清单，包含用户字段、经营字段、数字字段。</div>
+          <div class="item"><strong>references/rule-matrix.md</strong><br>放“字段类型 × 轻度/重度 × 交付物”对应规则。</div>
+          <div class="item"><strong>references/output-guidelines.md</strong><br>放 PPT、Word、Excel、案例页的默认对外规范。</div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>后续最值得沉淀的真实内容</h2>
+        <div class="list">
+          <div class="item"><strong>你最常见的敏感字段</strong><br>神策导表里哪些字段经常出现、哪些字段最容易漏脱敏。</div>
+          <div class="item"><strong>数字扰动默认策略</strong><br>比如人数、金额、转化率分别怎么改，是否用统一比例、区间、指数。</div>
+          <div class="item"><strong>对外汇报的默认规则</strong><br>哪些页能保留趋势、哪些页只能保留结构、哪些明细表默认不出。</div>
+          <div class="item"><strong>典型案例模板</strong><br>比如“鱼你在一起对外复盘版”“零售品牌活动案例分享版”。</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="hero" style="margin-top: 24px;">
+      <div class="eyebrow">下一步建议</div>
+      <h1 style="font-size: clamp(24px, 4vw, 36px); margin-bottom: 8px;">我建议的落地顺序</h1>
+      <div class="grid-3" style="margin-top: 14px;">
+        <div class="card">
+          <h3>第一步</h3>
+          <div class="block-list">
+            <div class="block"><strong>先写规则版 skill</strong><span>把轻度/重度、字段分类、数字扰动和交付物默认规则先固化。</span></div>
+          </div>
+        </div>
+        <div class="card">
+          <h3>第二步</h3>
+          <div class="block-list">
+            <div class="block"><strong>补真实案例</strong><span>从你最常见的对外客户复盘材料出发，补真实字段、真实口径、真实坑点。</span></div>
+          </div>
+        </div>
+        <div class="card">
+          <h3>第三步</h3>
+          <div class="block-list">
+            <div class="block"><strong>再考虑自动化脚本</strong><span>等规则稳定了，再补 CSV / Excel / 文本自动脱敏脚本，避免第一版过重。</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</body>
+</html>

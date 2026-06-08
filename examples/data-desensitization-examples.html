@@ -1,0 +1,607 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>数据脱敏前后示例</title>
+  <style>
+    :root {
+      --bg: #f7f1e8;
+      --paper: rgba(255, 252, 247, 0.95);
+      --ink: #1f2628;
+      --muted: #617071;
+      --line: rgba(31, 38, 40, 0.10);
+      --teal: #0f766e;
+      --orange: #bb5d31;
+      --red: #8b2f2f;
+      --green-soft: #eef8f5;
+      --red-soft: #fff2ef;
+      --shadow: 0 24px 60px rgba(78, 61, 29, 0.10);
+      --radius-xl: 28px;
+      --radius-lg: 18px;
+      --radius-sm: 12px;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "PingFang SC", "Hiragino Sans GB", "Noto Sans SC", "Microsoft YaHei", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 0% 0%, rgba(15, 118, 110, 0.14), transparent 24%),
+        radial-gradient(circle at 100% 0%, rgba(187, 93, 49, 0.18), transparent 28%),
+        linear-gradient(180deg, #f8f3eb 0%, #f3ede3 100%);
+      min-height: 100vh;
+    }
+
+    .wrap {
+      width: min(1280px, calc(100% - 28px));
+      margin: 24px auto 40px;
+    }
+
+    .hero, .panel, .card {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow);
+    }
+
+    .hero {
+      padding: 30px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      right: -40px;
+      top: -30px;
+      width: 260px;
+      height: 260px;
+      background: radial-gradient(circle, rgba(15, 118, 110, 0.16), transparent 62%);
+      pointer-events: none;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(15, 118, 110, 0.08);
+      color: var(--teal);
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+    }
+
+    h1 {
+      margin: 16px 0 12px;
+      font-size: clamp(30px, 5vw, 50px);
+      line-height: 1.08;
+    }
+
+    .lead {
+      margin: 0;
+      max-width: 920px;
+      color: var(--muted);
+      line-height: 1.85;
+      font-size: 16px;
+    }
+
+    .grid-2, .grid-3 {
+      display: grid;
+      gap: 18px;
+      margin-top: 22px;
+    }
+
+    .grid-2 { grid-template-columns: 1.15fr 1fr; }
+    .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+    .panel, .card { padding: 20px; }
+    .panel h2, .card h3 { margin: 0 0 14px; }
+    .panel p { margin: 0; color: var(--muted); line-height: 1.8; }
+
+    .switches {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .switch {
+      border: 1px solid rgba(15, 118, 110, 0.16);
+      background: #fffaf4;
+      color: var(--ink);
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .switch.active {
+      background: var(--teal);
+      color: #fff;
+      border-color: var(--teal);
+    }
+
+    .stack {
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .item {
+      padding: 14px;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.76);
+      border: 1px solid rgba(31, 38, 40, 0.08);
+      line-height: 1.8;
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .metric {
+      padding: 16px;
+      border-radius: 16px;
+      background: linear-gradient(180deg, #fffefb, #f4faf7);
+      border: 1px solid rgba(15, 118, 110, 0.12);
+    }
+
+    .metric .num {
+      font-size: 28px;
+      color: var(--teal);
+      font-weight: 800;
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+
+    .metric .txt {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.55;
+    }
+
+    .compare {
+      display: grid;
+      gap: 12px;
+    }
+
+    .box {
+      border-radius: 18px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.80);
+    }
+
+    .box-hd {
+      padding: 12px 14px;
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0.03em;
+    }
+
+    .before .box-hd {
+      background: rgba(139, 47, 47, 0.08);
+      color: var(--red);
+    }
+
+    .after .box-hd {
+      background: rgba(15, 118, 110, 0.08);
+      color: var(--teal);
+    }
+
+    .box-bd {
+      padding: 14px;
+      line-height: 1.8;
+      color: var(--muted);
+    }
+
+    .table-wrap {
+      overflow: auto;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.82);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 760px;
+    }
+
+    th, td {
+      padding: 14px 16px;
+      text-align: left;
+      border-bottom: 1px solid rgba(31, 38, 40, 0.08);
+      vertical-align: top;
+      line-height: 1.7;
+      font-size: 14px;
+    }
+
+    th {
+      background: rgba(15, 118, 110, 0.06);
+      font-size: 13px;
+      letter-spacing: 0.03em;
+    }
+
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .badge {
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      background: #edf7f4;
+      color: var(--teal);
+    }
+
+    .warn {
+      margin-top: 14px;
+      padding: 15px;
+      border-radius: 16px;
+      background: var(--red-soft);
+      border: 1px solid rgba(139, 47, 47, 0.12);
+      color: var(--red);
+      line-height: 1.8;
+    }
+
+    code {
+      background: rgba(15, 118, 110, 0.08);
+      padding: 2px 6px;
+      border-radius: 7px;
+      font-family: "SFMono-Regular", "Menlo", monospace;
+      font-size: 0.95em;
+    }
+
+    [data-mode] { display: none; }
+    [data-mode].show { display: block; }
+
+    @media (max-width: 980px) {
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+      .metrics { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <div class="eyebrow">脱敏前后示例 · 对外客户复盘材料</div>
+      <h1>看几个“脱敏前 vs 脱敏后”的真实感例子</h1>
+      <p class="lead">
+        这页重点不是讲原则，而是直接看效果。你可以切换看 <strong>轻度脱敏</strong> 和 <strong>重度脱敏</strong>。
+        这里遵循你的规则：<strong>用户字段要脱敏，所有数字都不能原样保留，必须经过扰动、区间化或描述性替换</strong>。
+      </p>
+
+      <div class="grid-2">
+        <div class="panel">
+          <h2>先记住这 3 个判断标准</h2>
+          <div class="stack">
+            <div class="item"><strong>标准 1：真实数字不能出现</strong><br>哪怕只是参与人数、GMV、核销率、客单价，也不能原样保留。</div>
+            <div class="item"><strong>标准 2：结构要保留</strong><br>脱敏后仍要能看出高低、趋势、差异、问题位置，否则材料就失去分析价值。</div>
+            <div class="item"><strong>标准 3：全材料一致</strong><br>同一指标在表格、图表、文案、页脚、结论里要统一改写，不能一页改了另一页没改。</div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h2>切换查看模式</h2>
+          <div class="switches">
+            <button class="switch active" data-target="light">轻度脱敏</button>
+            <button class="switch" data-target="heavy">重度脱敏</button>
+          </div>
+          <div class="metrics" style="margin-top:18px;">
+            <div class="metric"><div class="num">轻度</div><div class="txt">对当前客户可讲业务趋势，但真实数字全部扰动</div></div>
+            <div class="metric"><div class="num">重度</div><div class="txt">做案例外发/培训分享，只保留结构与启发</div></div>
+            <div class="metric"><div class="num">底线</div><div class="txt">任何真实数字都不能被直接看见或轻易反推</div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section data-mode="light" class="show">
+      <div class="grid-3">
+        <div class="card">
+          <h3>例子 1：用户明细表</h3>
+          <div class="badge-row">
+            <span class="badge">Excel / CSV</span>
+            <span class="badge">轻度脱敏</span>
+          </div>
+          <div class="compare">
+            <div class="box before">
+              <div class="box-hd">脱敏前</div>
+              <div class="box-bd">
+                姓名：张敏<br>
+                手机号：13812345678<br>
+                会员ID：M827163<br>
+                首单金额：72.4<br>
+                二单间隔：11天
+              </div>
+            </div>
+            <div class="box after">
+              <div class="box-hd">轻度脱敏后</div>
+              <div class="box-bd">
+                姓名：用户A<br>
+                手机号：138****5678<br>
+                会员ID：M_00128<br>
+                首单金额：69.8<br>
+                二单间隔：13天
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>例子 2：活动结果页</h3>
+          <div class="badge-row">
+            <span class="badge">PPT 结论页</span>
+            <span class="badge">轻度脱敏</span>
+          </div>
+          <div class="compare">
+            <div class="box before">
+              <div class="box-hd">脱敏前</div>
+              <div class="box-bd">
+                活动累计参与人数 12,486 人，转化用户 2,337 人，整体转化率 18.7%，活动 GMV 286,420 元。
+              </div>
+            </div>
+            <div class="box after">
+              <div class="box-hd">轻度脱敏后</div>
+              <div class="box-bd">
+                活动累计参与人数约 1.31 万，转化用户约 2.46 千，整体转化率约 17.9%，活动产出约 30.1 万。
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>例子 3：门店差异页</h3>
+          <div class="badge-row">
+            <span class="badge">经营敏感</span>
+            <span class="badge">轻度脱敏</span>
+          </div>
+          <div class="compare">
+            <div class="box before">
+              <div class="box-hd">脱敏前</div>
+              <div class="box-bd">
+                上海静安寺店 GMV 43,260 元，核销率 24.8%；北京国贸店 GMV 37,180 元，核销率 19.6%。
+              </div>
+            </div>
+            <div class="box after">
+              <div class="box-hd">轻度脱敏后</div>
+              <div class="box-bd">
+                华东核心门店组 A 产出约 4.6 万，核销率约 23.9%；华北核心门店组 B 产出约 3.9 万，核销率约 18.8%。
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel" style="margin-top: 22px;">
+        <h2>轻度脱敏：更多例子</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>字段/内容</th>
+                <th>脱敏前</th>
+                <th>轻度脱敏后</th>
+                <th>说明</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>会员手机号</td>
+                <td>13798765432</td>
+                <td>137****5432</td>
+                <td>保留识别感，但无法直接联系用户</td>
+              </tr>
+              <tr>
+                <td>参与人数</td>
+                <td>8,972</td>
+                <td>9,430</td>
+                <td>做扰动，不保留真实值</td>
+              </tr>
+              <tr>
+                <td>GMV</td>
+                <td>154,280</td>
+                <td>161,900</td>
+                <td>保留规模感，不保留真实金额</td>
+              </tr>
+              <tr>
+                <td>转化率</td>
+                <td>16.4%</td>
+                <td>15.7%</td>
+                <td>比例也必须扰动</td>
+              </tr>
+              <tr>
+                <td>结论表述</td>
+                <td>二单转化人数 1,286 人</td>
+                <td>二单转化人数约 1.3 千</td>
+                <td>数字 + 语言双改写</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="warn">
+          轻度脱敏不是“留个差不多的真数”。核心要求是：<strong>真实数字不能出现</strong>，但相对关系、趋势、问题位置还要保住。
+        </div>
+      </div>
+    </section>
+
+    <section data-mode="heavy">
+      <div class="grid-3">
+        <div class="card">
+          <h3>例子 1：用户明细表</h3>
+          <div class="badge-row">
+            <span class="badge">Excel / CSV</span>
+            <span class="badge">重度脱敏</span>
+          </div>
+          <div class="compare">
+            <div class="box before">
+              <div class="box-hd">脱敏前</div>
+              <div class="box-bd">
+                姓名：张敏<br>
+                手机号：13812345678<br>
+                会员ID：M827163<br>
+                首单金额：72.4<br>
+                二单间隔：11天
+              </div>
+            </div>
+            <div class="box after">
+              <div class="box-hd">重度脱敏后</div>
+              <div class="box-bd">
+                用户标签：新客用户组1<br>
+                联系信息：已隐藏<br>
+                标识：匿名用户A<br>
+                首单金额：70元档<br>
+                二单间隔：两周内
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>例子 2：活动结果页</h3>
+          <div class="badge-row">
+            <span class="badge">PPT 结论页</span>
+            <span class="badge">重度脱敏</span>
+          </div>
+          <div class="compare">
+            <div class="box before">
+              <div class="box-hd">脱敏前</div>
+              <div class="box-bd">
+                活动累计参与人数 12,486 人，转化用户 2,337 人，整体转化率 18.7%，活动 GMV 286,420 元。
+              </div>
+            </div>
+            <div class="box after">
+              <div class="box-hd">重度脱敏后</div>
+              <div class="box-bd">
+                活动参与规模达到万级，转化用户处于千级，整体转化表现接近 20%，活动整体产出处于中高水平。
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>例子 3：门店差异页</h3>
+          <div class="badge-row">
+            <span class="badge">经营敏感</span>
+            <span class="badge">重度脱敏</span>
+          </div>
+          <div class="compare">
+            <div class="box before">
+              <div class="box-hd">脱敏前</div>
+              <div class="box-bd">
+                上海静安寺店 GMV 43,260 元，核销率 24.8%；北京国贸店 GMV 37,180 元，核销率 19.6%。
+              </div>
+            </div>
+            <div class="box after">
+              <div class="box-hd">重度脱敏后</div>
+              <div class="box-bd">
+                核心城市门店组 A 的活动产出明显高于门店组 B，且转化表现更强；两组门店在执行与人群匹配上存在明显差异。
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel" style="margin-top: 22px;">
+        <h2>重度脱敏：更多例子</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>字段/内容</th>
+                <th>脱敏前</th>
+                <th>重度脱敏后</th>
+                <th>说明</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>会员姓名</td>
+                <td>李晓雯</td>
+                <td>用户分组A</td>
+                <td>不保留任何个人特征</td>
+              </tr>
+              <tr>
+                <td>参与人数</td>
+                <td>8,972</td>
+                <td>接近万级</td>
+                <td>只保留数量级</td>
+              </tr>
+              <tr>
+                <td>GMV</td>
+                <td>154,280</td>
+                <td>中位偏上产出</td>
+                <td>用等级化表达替代真实金额</td>
+              </tr>
+              <tr>
+                <td>转化率</td>
+                <td>16.4%</td>
+                <td>显著高于常规活动基线</td>
+                <td>保留判断，不保留数值</td>
+              </tr>
+              <tr>
+                <td>结论表述</td>
+                <td>二单转化人数 1,286 人</td>
+                <td>二单转化规模达到千级，表现优于同类活动</td>
+                <td>更适合培训、案例库、跨客户分享</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="warn">
+          重度脱敏更像“安全改写”。重点不是让材料看起来像原文，而是让别人学到方法论，同时拿不到真实经营数据。
+        </div>
+      </div>
+    </section>
+
+    <section class="grid-2">
+      <div class="panel">
+        <h2>最容易漏改的地方</h2>
+        <div class="stack">
+          <div class="item"><strong>图表数据标签</strong><br>表格改了，柱状图顶部数字没改。</div>
+          <div class="item"><strong>页脚和注释</strong><br>正文改了，页脚“活动 GMV 286,420”还留着。</div>
+          <div class="item"><strong>分子分母联动</strong><br>转化率改了，但参与人数和转化人数还是真值，最后仍然能算回去。</div>
+          <div class="item"><strong>多页不一致</strong><br>第一页写“1.3万”，后面一页明细还写“12,486”。</div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>你以后可以怎么对我说</h2>
+        <div class="stack">
+          <div class="item"><strong>客户汇报版</strong><br><code>把这份复盘按轻度脱敏处理，所有数字都不能保留原值，但要保留趋势和高低关系。</code></div>
+          <div class="item"><strong>案例分享版</strong><br><code>把这份项目复盘按重度脱敏处理，用户字段完全匿名，数字改成区间和描述性表达。</code></div>
+          <div class="item"><strong>明细导出版</strong><br><code>这份 Excel 明细按重度脱敏输出，手机号、会员ID、姓名都匿名，金额和人数也不要保留真实值。</code></div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const buttons = [...document.querySelectorAll(".switch")];
+    const sections = [...document.querySelectorAll("[data-mode]")];
+
+    buttons.forEach((button) => {
+      button.addEventListener("click", () => {
+        const target = button.dataset.target;
+        buttons.forEach((b) => b.classList.toggle("active", b === button));
+        sections.forEach((section) => {
+          section.classList.toggle("show", section.dataset.mode === target);
+        });
+      });
+    });
+  </script>
+</body>
+</html>
