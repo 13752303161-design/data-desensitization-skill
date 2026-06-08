@@ -263,7 +263,7 @@ cp -R data-desensitization ~/.codex/skills/
 - 行业化字段清单
 - 更稳定的数字扰动策略
 - Excel / PPT / HTML 的高风险位置样例
-- 面向神策、零售、餐饮场景的默认表达模板
+- 面向零售、餐饮等行业场景的默认表达模板
 
 ---
 
